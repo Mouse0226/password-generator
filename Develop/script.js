@@ -1,6 +1,7 @@
 var passLength = function() {
   var length = 0;
   
+  //Prompt user to enter desired length of password between 8 and 128. Loop until valid result is achieved.
   while (length < 8 || length > 128) {
     length = prompt("Please enter the desired password length between 8 and 128 characters.");
   }
