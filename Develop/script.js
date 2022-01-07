@@ -1,5 +1,5 @@
 // Determine password length
-var passLength = function() {
+var passwordLength = function() {
   var length = 0;
   
   // Prompt user to enter desired length of password between 8 and 128. Loop until valid result is achieved.
@@ -7,15 +7,23 @@ var passLength = function() {
     length = window.prompt("Please enter the desired password length between 8 and 128 characters.");
   }
 
-  console.log("Password length is " + length);
-  return passLength;
+  if (isNaN(length)) {
+    return passwordLength();
+  }
+
+  return length;
 };
 
 // Boolean result for array determined criteria
 var criteriaPrompt = function(criteria) {
   var userResponse = "";
   // Prompt user to determine if password should include criteria passed in by array
-  userResponse = window.prompt("Should the password contain " + criteria + " ? Enter 'YES' or 'NO'.")
+  userResponse = window.prompt("Should the password contain " + criteria + "? Enter 'YES' or 'NO'.")
+
+  // Reprompt if null is received
+  if (userResponse === "" || userResponse === null) {
+    return criteriaPrompt(criteria);
+  }
 
   userResponse = userResponse.toLowerCase();
 
@@ -31,27 +39,68 @@ var criteriaPrompt = function(criteria) {
   }
 }
 
+// Generate the password for the length and of the values passed in
+var createPassword = function(passLength, chars) {
+  var password = "";
+  var charsLength = chars.length;
+
+  // Random selection of character
+  for (i = 0; i < passLength; i++) {
+    password += chars.charAt(Math.floor(Math.random() * charsLength));
+  }
+  return password;
+}
+
 // Get references to the #generate element
 var generateBtn = document.querySelector("#generate");
 
 // Write password to the #password input
 function writePassword() {
+  var passLength = 0;
   var passCrit = ["lower case letters", "upper case letters", "special characters", "numbers"]
+  var charSelection = "";
+  var upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var lowerChars = "abcdefghijklmnopqrstuvwxyz";
+  var numberChars = "0123456789";
+  var specialChars = " !#\"$%&'()*+,-./:;<>?@[]^_`{}|~";
 
-  passLength();
+  // Determine password length
+  passLength = passwordLength();
 
+  // Determine password criteria
   for (i = 0; i < passCrit.length; i++) {
-    criteriaPrompt(passCrit[i]);
+    if (criteriaPrompt(passCrit[i])) {
+      switch (passCrit[i]) {
+        case ("lower case letters"):
+          charSelection = charSelection.concat(lowerChars);
+          break;
+        case ("upper case letters"):
+          charSelection = charSelection.concat(upperChars);
+          break;
+        case ("special characters"):
+          charSelection = charSelection.concat(specialChars);
+          break;
+        case ("numbers"):
+          charSelection = charSelection.concat(numberChars);
+          break;
+        default:
+          console.log(passCrit[i] + " is invalid, criteria skipped.")
+          break;
+      }
+    }
   }
-  var password = generatePassword();
+
+  // Loop function if no criteria is selected
+  if (charSelection === "") {
+    window.alert("No criteria was established. Please try again.");
+    writePassword();
+  } 
+
+  var password = createPassword(passLength, charSelection);
   var passwordText = document.querySelector("#password");
 
   passwordText.value = password;
 
-}
-
-var generatePassword = function() {
-  return "somerandomvalue";
 }
 
 // Add event listener to generate button
